@@ -12,13 +12,13 @@ public class Main : ApplicationContext
     private readonly NotifyIcon notifyIcon;
     private readonly Microsoft.Win32.TaskScheduler.TaskService taskService = new();
     private readonly ServiceController serviceController = new("OVRService");
-    bool running = true;
-    bool autoMode = Properties.App.Default.AutoMode;
+    private bool running = true;
+    private bool autoMode = Properties.App.Default.AutoMode;
     public Main()
     {
 
-        toggle = new ToolStripMenuItem("Toggle", null, Toggle);
-        auto = new ToolStripMenuItem("AutoMode", null, (s, e) =>
+        toggle = new("Toggle", null, async (s, e) => await Toggle());
+        auto = new("AutoMode", null, (s, e) =>
         {
             Properties.App.Default.AutoMode = auto!.Checked = autoMode = !autoMode;
             Properties.App.Default.Save();
@@ -28,7 +28,7 @@ public class Main : ApplicationContext
         };
         var task = taskService.GetTask(TaskPath);
         var exePath = Environment.ProcessPath;
-        startup = new ToolStripMenuItem("Run at Startup", null, (s, e) =>
+        startup = new("Run at Startup", null, (s, e) =>
         {
             if (startup!.Checked)
             {
@@ -81,7 +81,6 @@ public class Main : ApplicationContext
             UpdateMenu();
         };
         CreateCheckTask();
-
     }
 
     private void CreateCheckTask()
@@ -141,11 +140,8 @@ public class Main : ApplicationContext
         serviceController.Dispose();
         base.Dispose(disposing);
     }
-    async void Toggle(object? sender, EventArgs e)
-    {
-        await Toggle();
-    }
-    readonly SemaphoreSlim semaphoreSlim = new(1);
+
+    private readonly SemaphoreSlim semaphoreSlim = new(1);
     private async Task Toggle(bool? force = null)
     {
         try
@@ -161,13 +157,13 @@ public class Main : ApplicationContext
             {
                 await Task.Run(() => serviceController.Start());
             }
-
+            UpdateMenu();
         }
         finally
         {
-            semaphoreSlim.Release();
-            UpdateMenu();
             toggle.Enabled = true;
+            semaphoreSlim.Release();
+
         }
     }
 }
