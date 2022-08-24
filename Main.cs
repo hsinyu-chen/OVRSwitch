@@ -90,7 +90,7 @@ public class Main : ApplicationContext
         {
             while (running)
             {
-                if (autoMode && !Process.GetProcessesByName("OculusClient").Any())
+                if (autoMode && !Process.GetProcessesByName("OculusClient").Any() && !Process.GetProcessesByName("OVRServiceLauncher").Any())
                 {
                     serviceController.Refresh();
                     if (serviceController.Status == ServiceControllerStatus.Running)
