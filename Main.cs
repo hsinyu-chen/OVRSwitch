@@ -86,17 +86,26 @@ public class Main : ApplicationContext
     private void CreateCheckTask()
     {
         var sc = SynchronizationContext.Current;
+        var counter = 0;
         Task.Factory.StartNew(async () =>
         {
             while (running)
             {
-                if (autoMode && !Process.GetProcessesByName("OculusClient").Any() && !Process.GetProcessesByName("OVRServiceLauncher").Any())
+                if (autoMode && !Process.GetProcessesByName("OculusClient").Any())
                 {
                     serviceController.Refresh();
                     if (serviceController.Status == ServiceControllerStatus.Running)
                     {
-                        sc?.Send(async (state) => await Toggle(false), null);
+                        counter++;
+                        if (counter >= 1)
+                        {
+                            sc?.Send(async (state) => await Toggle(false), null);
+                        }
                     }
+                }
+                else
+                {
+                    counter = 0;
                 }
                 await Task.Delay(TimeSpan.FromMinutes(1));
             }
