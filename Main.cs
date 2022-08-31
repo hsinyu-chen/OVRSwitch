@@ -97,7 +97,7 @@ public class Main : ApplicationContext
                     if (serviceController.Status == ServiceControllerStatus.Running)
                     {
                         counter++;
-                        if (counter >= 1)
+                        if (counter >= 5)
                         {
                             sc?.Send(async (state) => await Toggle(false), null);
                         }
